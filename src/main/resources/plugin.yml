@@ -1,0 +1,11 @@
+name: VortexCustomItems
+version: '${project.version}'
+main: gemesil.vortexcustomitems.VortexCustomItems
+api-version: 1.19
+prefix: VortexCustomItems
+authors: [ Gemesil ]
+description: Adds custom items to the game using an external resourcepack
+commands:
+  vitem:
+    description: Manage custom items in MCVortexCustomItems
+    usage: "Usage: /<command> [help|list|get]"
