@@ -20,8 +20,6 @@ public final class VortexCustomItems extends JavaPlugin {
 
     int sched;
     public HashMap<ItemStack, ArrayList<Object>> customItems;
-    public ItemStack currentlyHeld;
-    public Player currentlyHeldPlayer;
 
     // Get reference to other classes
     private VLog vLog;
@@ -39,36 +37,36 @@ public final class VortexCustomItems extends JavaPlugin {
 
         // todo convert this to hashmap
         //customItems = new ArrayList<ItemStack>();
-        customItems = new HashMap<ItemStack, ArrayList<Object>>();
+        customItems = new HashMap<>();
 
         // Add a new custom item
         customItems.put(
-                itemRecipes.makeCustomItem(
-                        Material.DIAMOND_SWORD,
-                        10,
-                        ChatColor.YELLOW + "Blaze Sword",
-                        Arrays.asList(
-                                ChatColor.GRAY + "Sharpness XII",
-                                ChatColor.GRAY + "Smite XII",
-                                ChatColor.GRAY + "Bane of Arthropods XII",
-                                ChatColor.GRAY + "Looting VI",
-                                ChatColor.GRAY + "Sweeping Edge III",
-                                ChatColor.BLUE + "Speed III",
-                                "",
-                                ChatColor.translateAlternateColorCodes('&', "&6&l") + "| " + ChatColor.YELLOW + "LEGENDARY"
-                        ),
-                        new HashMap<Enchantment, Integer>() {{
-                            put(Enchantment.DAMAGE_ALL, 12);
-                            put(Enchantment.DAMAGE_UNDEAD, 12);
-                            put(Enchantment.DAMAGE_ARTHROPODS, 12);
-                            put(Enchantment.SWEEPING_EDGE, 3);
-                            put(Enchantment.LOOT_BONUS_MOBS, 6);
-                        }}
-                ),
-                new ArrayList<Object>() {{
-                    add(Particle.FLAME);
-                    add(PotionEffectType.SPEED);
-                }}
+            itemRecipes.makeCustomItem(
+                    Material.DIAMOND_SWORD,
+                    2,
+                    ChatColor.YELLOW + "Blaze Sword",
+                    Arrays.asList(
+                            ChatColor.GRAY + "Sharpness XII",
+                            ChatColor.GRAY + "Smite XII",
+                            ChatColor.GRAY + "Bane of Arthropods XII",
+                            ChatColor.GRAY + "Looting VI",
+                            ChatColor.GRAY + "Sweeping Edge III",
+                            ChatColor.RED + "Fire Resistance II",
+                            "",
+                            ChatColor.translateAlternateColorCodes('&', "&6&l") + "| " + ChatColor.YELLOW + "LEGENDARY"
+                    ),
+                    new HashMap<Enchantment, Integer>() {{
+                        put(Enchantment.DAMAGE_ALL, 12);
+                        put(Enchantment.DAMAGE_UNDEAD, 12);
+                        put(Enchantment.DAMAGE_ARTHROPODS, 12);
+                        put(Enchantment.SWEEPING_EDGE, 3);
+                        put(Enchantment.LOOT_BONUS_MOBS, 6);
+                    }}
+            ),
+            new ArrayList<Object>() {{
+                add(Particle.FLAME);
+                add(PotionEffectType.FIRE_RESISTANCE);
+            }}
         );
 
         // Register commands
@@ -89,29 +87,36 @@ public final class VortexCustomItems extends JavaPlugin {
     }
 
     public void onTick() {
-        // if any players are online
+        // Are any players online at the moment?
         if (Bukkit.getServer().getOnlinePlayers().size() > 0) {
 
-            // Iterate over all of them
+            // Go over all online players
             for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+
+                // Get the currently held item by the player
                 ItemStack heldItem = p.getInventory().getItem(p.getInventory().getHeldItemSlot());
 
-                // If a custom model is held
-                if (heldItem != null && heldItem.getItemMeta().hasCustomModelData() && heldItem.getItemMeta().getCustomModelData() == 10) {
-                    p.addPotionEffect(new PotionEffect((PotionEffectType) customItems.get(heldItem).get(1), 9999999, 2));
+                // Is the item a normal or a custom one? -> return if normal
+                if (heldItem == null || !heldItem.hasItemMeta() || !heldItem.getItemMeta().hasCustomModelData() || !customItems.containsKey(heldItem)) {
 
-                    // If custom item
-                    if (customItems.containsKey(heldItem)) {
-                        p.getWorld().spawnParticle((Particle) customItems.get(heldItem).get(0), p.getLocation(), 5,  1,  0.2,  1,  0);
+                    // Is the player affected by any potion effects?
+                    if (p.getActivePotionEffects().size() > 0)
 
-                    }
+                        // Remove all potion effects from the player
+                        for (PotionEffect potEffect : p.getActivePotionEffects())
+                            p.removePotionEffect(potEffect.getType());
+
+                    return;
                 }
-                // if normal item //todo logical error here, the item can also not be custom at this stage
-                else {
-                    for (PotionEffect potEffect : p.getActivePotionEffects()) {
-                        p.removePotionEffect(potEffect.getType());
-                    }
-                }
+
+                // Apply corresponding potion effects (potion level is set by the customModelData number)
+                if (customItems.get(heldItem).get(1) != null)
+                    p.addPotionEffect(new PotionEffect((PotionEffectType) customItems.get(heldItem).get(1), 9999999, heldItem.getItemMeta().getCustomModelData() - 1));
+
+                // Apply particle effect around player
+                if (customItems.get(heldItem).get(0) != null)
+                    p.getWorld().spawnParticle((Particle) customItems.get(heldItem).get(0), p.getLocation(), 5,  1,  0.2,  1,  0);
+
             }
         }
     }
