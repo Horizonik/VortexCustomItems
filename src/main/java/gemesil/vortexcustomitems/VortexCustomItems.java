@@ -44,29 +44,37 @@ public final class VortexCustomItems extends JavaPlugin {
             itemRecipes.makeCustomItem(
                     Material.DIAMOND_SWORD,
                     2,
-                    ChatColor.YELLOW + "Blaze Sword",
-                    Arrays.asList(
-                            ChatColor.GRAY + "Sharpness XII",
-                            ChatColor.GRAY + "Smite XII",
-                            ChatColor.GRAY + "Bane of Arthropods XII",
-                            ChatColor.GRAY + "Looting VI",
-                            ChatColor.GRAY + "Sweeping Edge III",
-                            ChatColor.RED + "Fire Resistance II",
-                            "",
-                            ChatColor.translateAlternateColorCodes('&', "&6&l") + "| " + ChatColor.YELLOW + "LEGENDARY"
-                    ),
-                    new HashMap<Enchantment, Integer>() {{
+                    "Blaze Sword",
+                    new LinkedHashMap<Enchantment, Integer>() {{
                         put(Enchantment.DAMAGE_ALL, 12);
                         put(Enchantment.DAMAGE_UNDEAD, 12);
                         put(Enchantment.DAMAGE_ARTHROPODS, 12);
                         put(Enchantment.SWEEPING_EDGE, 3);
                         put(Enchantment.LOOT_BONUS_MOBS, 6);
-                    }}
+                    }},
+                    "Extremely Rare"
             ),
             new ArrayList<Object>() {{
                 add(Particle.FLAME);
                 add(PotionEffectType.FIRE_RESISTANCE);
             }}
+        );
+
+        customItems.put(
+                itemRecipes.makeCustomItem(
+                        Material.DIAMOND_PICKAXE,
+                        2,
+                        "Blaze Pickaxe",
+                        new LinkedHashMap<Enchantment, Integer>() {{
+                            put(Enchantment.DIG_SPEED, 12);
+                            put(Enchantment.LOOT_BONUS_BLOCKS, 6);
+                        }},
+                        "Extremely Rare"
+                ),
+                new ArrayList<Object>() {{
+                    add(Particle.FLAME);
+                    add(PotionEffectType.FIRE_RESISTANCE);
+                }}
         );
 
         // Register commands
@@ -96,7 +104,7 @@ public final class VortexCustomItems extends JavaPlugin {
                 // Get the currently held item by the player
                 ItemStack heldItem = p.getInventory().getItem(p.getInventory().getHeldItemSlot());
 
-                // Is the item a normal or a custom one? -> return if normal
+                // Is the item normal?
                 if (heldItem == null || !heldItem.hasItemMeta() || !heldItem.getItemMeta().hasCustomModelData() || !customItems.containsKey(heldItem)) {
 
                     // Is the player affected by any potion effects?
@@ -111,7 +119,7 @@ public final class VortexCustomItems extends JavaPlugin {
 
                 // Apply corresponding potion effects (potion level is set by the customModelData number)
                 if (customItems.get(heldItem).get(1) != null)
-                    p.addPotionEffect(new PotionEffect((PotionEffectType) customItems.get(heldItem).get(1), 9999999, heldItem.getItemMeta().getCustomModelData() - 1));
+                    p.addPotionEffect(new PotionEffect((PotionEffectType) customItems.get(heldItem).get(1), 9999999, 0));
 
                 // Apply particle effect around player
                 if (customItems.get(heldItem).get(0) != null)
@@ -120,4 +128,6 @@ public final class VortexCustomItems extends JavaPlugin {
             }
         }
     }
+
+
 }

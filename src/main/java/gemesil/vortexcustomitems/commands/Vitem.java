@@ -42,38 +42,52 @@ public class Vitem implements CommandExecutor {
                 // If the player is trying to get an item
                 case "get":
 
-                    // If a 2nd arg value was entered (an item name supposedly)
-                    if (args.length > 1) {
+                    if (args.length < 2) {
+                        vLog.sendChat(p, "Fool, you forgot to enter an item name! use /vitem get [name]");
+                        return true;
+                    }
 
-                        String inputItemName = "";
+                    // Get over all args that come after the "get" word, concat them into one string
+                    StringBuilder inputItemName = new StringBuilder();
+                    for (int i = 1; i < args.length; i++) {
+                        inputItemName.append(args[i]);
 
-                        // Get over all args that come after the "get" word, concat them into one string
-                        for (int i = 1; i < args.length; i++) {
-                            inputItemName += args[i];
+                        // Add space between words
+                        if (i < args.length - 1)
+                            inputItemName.append(" ");
+                    }
 
-                            // Add space between words
-                            if (i < args.length - 1)
-                                inputItemName += " ";
-                        }
+                    // Check if the name entered by the player matches any custom item names
+                    for (ItemStack customItem : plugin.customItems.keySet()) {
 
-                        // Check if the name entered by the player matches any custom item names
-                        for (ItemStack customItem : plugin.customItems.keySet()) {
+                        // If the name matches
+                        if (customItem.getItemMeta().getDisplayName().contains(inputItemName)) {
 
-                            // If the name matches
-                            if (customItem.getItemMeta().getDisplayName().contains(inputItemName)) {
+                           // Check if the player's inventory is not full
+                            if (p.getInventory().firstEmpty() != -1)
 
                                 // Add the customItem to the player's inventory
-                                if (p.getInventory().firstEmpty() == -1)
-                                    p.getLocation().getWorld().dropItemNaturally(p.getLocation(), customItem);
-                                else
-                                    p.getInventory().addItem(customItem);
+                                p.getInventory().addItem(customItem);
 
-                                vLog.sendChat(p, "Gave " + customItem.getItemMeta().getDisplayName() + ChatColor.GRAY + " to " + p.getDisplayName() + ".");
-                            } else
-                                vLog.sendChat(p, ChatColor.GRAY + "Item name" + ChatColor.RED + "not found" + ChatColor.GRAY + ", use /vitem list to see all names!");
+                            // When the player's inventory is actually full
+                            else
+                                // Drop the item on the floor next to them
+                                p.getLocation().getWorld().dropItemNaturally(p.getLocation(), customItem);
+
+                            // Send status message to the player and exit function
+                            vLog.sendChat(p, "Gave " + customItem.getItemMeta().getDisplayName() + ChatColor.GRAY + " to " + p.getDisplayName() + ".");
+                            return true;
+
+                        }
+
+                        // When the input name didn't match any custom item names, show syntax and exit function
+                        else {
+                            vLog.sendChat(p, ChatColor.GRAY + "Item name not found, use /vitem list to see all names!");
+                            return true;
                         }
                     }
-                    break;
+
+                    return true;
 
                 // If the player is trying to list all item names
                 case "list":
@@ -83,7 +97,8 @@ public class Vitem implements CommandExecutor {
                     // Display all custom item names in chat
                     for (ItemStack customItem : plugin.customItems.keySet())
                         vLog.sendChat(p, "• " + customItem.getItemMeta().getDisplayName() + ".");
-                    break;
+
+                    return true;
 
                 // If the player is trying to see help menu
                 case "help":
@@ -93,19 +108,11 @@ public class Vitem implements CommandExecutor {
                                     ChatColor.BOLD + "/vitem get [item name]" + ChatColor.GRAY + " - get a custom item\n" +
                                     ChatColor.BOLD + "/vitem list" + ChatColor.GRAY + " - Show names of all custom items"
                     );
-                    break;
+
+                    return true;
             }
         }
-        // When there weren't any args, show help message
-        else {
-            vLog.sendChat(p,
-        "VITEM COMMANDS:\n" +
-                ChatColor.BOLD + "/vitem help" + ChatColor.GRAY + " - display this help menu\n" +
-                ChatColor.BOLD + "/vitem get [item name]" + ChatColor.GRAY + " - get a custom item\n" +
-                ChatColor.BOLD + "/vitem list" + ChatColor.GRAY + " - Show names of all custom items"
-            );
-        }
 
-        return true;
+        return false;
     }
 }
