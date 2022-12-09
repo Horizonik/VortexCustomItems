@@ -19,63 +19,59 @@ import java.util.*;
 public final class VortexCustomItems extends JavaPlugin {
 
     int sched;
-    public HashMap<ItemStack, ArrayList<Object>> customItems;
+    private VLog vLog;
+    public HashMap<ItemStack, CustomItem> customItems;
 
     // Get reference to other classes
-    private VLog vLog;
-    private ItemRecipes itemRecipes;
 
     @Override
     public void onEnable() {
 
         // Get reference to other classes
-        VLog vLog = new VLog(this);
-        ItemRecipes itemRecipes = new ItemRecipes(this);
+        vLog = new VLog(this);
 
-        // Register a new recipe
-        //Bukkit.addRecipe(itemRecipes.CustomElytraRecipe());
-
-        // todo convert this to hashmap
-        //customItems = new ArrayList<ItemStack>();
         customItems = new HashMap<>();
 
-        // Add a new custom item
-        customItems.put(
-            itemRecipes.makeCustomItem(
-                    Material.DIAMOND_SWORD,
-                    2,
-                    "Blaze Sword",
-                    new LinkedHashMap<Enchantment, Integer>() {{
-                        put(Enchantment.DAMAGE_ALL, 12);
-                        put(Enchantment.DAMAGE_UNDEAD, 12);
-                        put(Enchantment.DAMAGE_ARTHROPODS, 12);
-                        put(Enchantment.SWEEPING_EDGE, 3);
-                        put(Enchantment.LOOT_BONUS_MOBS, 6);
-                    }},
-                    "Extremely Rare"
-            ),
-            new ArrayList<Object>() {{
-                add(Particle.FLAME);
-                add(PotionEffectType.FIRE_RESISTANCE);
-            }}
+        CustomItem blazeSword = new CustomItem(
+                Material.DIAMOND_SWORD,
+                2,
+
+                "Blaze Sword",
+                "Extremely Rare",
+                "Let them burn, let everything burn!",
+
+                new LinkedHashMap<Enchantment, Integer>() {{
+                    put(Enchantment.DAMAGE_ALL, 12);
+                    put(Enchantment.DAMAGE_UNDEAD, 12);
+                    put(Enchantment.DAMAGE_ARTHROPODS, 12);
+                    put(Enchantment.SWEEPING_EDGE, 3);
+                    put(Enchantment.LOOT_BONUS_MOBS, 6);
+                }},
+
+                Particle.FLAME,
+                PotionEffectType.FIRE_RESISTANCE
         );
 
-        customItems.put(
-                itemRecipes.makeCustomItem(
-                        Material.DIAMOND_PICKAXE,
-                        2,
-                        "Blaze Pickaxe",
-                        new LinkedHashMap<Enchantment, Integer>() {{
-                            put(Enchantment.DIG_SPEED, 12);
-                            put(Enchantment.LOOT_BONUS_BLOCKS, 6);
-                        }},
-                        "Extremely Rare"
-                ),
-                new ArrayList<Object>() {{
-                    add(Particle.FLAME);
-                    add(PotionEffectType.FIRE_RESISTANCE);
-                }}
+        CustomItem blazePickaxe = new CustomItem(
+                Material.DIAMOND_PICKAXE,
+                2,
+
+                "Blaze Pickaxe",
+                "Extremely Rare",
+                "Mine blazingly fast!",
+
+                new LinkedHashMap<Enchantment, Integer>() {{
+                    put(Enchantment.DIG_SPEED, 12);
+                    put(Enchantment.LOOT_BONUS_BLOCKS, 6);
+                }},
+
+                Particle.CAMPFIRE_COSY_SMOKE,
+                PotionEffectType.FAST_DIGGING
         );
+
+        // Register custom items
+        customItems.put (blazeSword.getCustomItem(), blazeSword);
+        customItems.put (blazePickaxe.getCustomItem(), blazePickaxe);
 
         // Register commands
         getCommand("vitem").setExecutor(new Vitem(this, vLog));
@@ -94,12 +90,15 @@ public final class VortexCustomItems extends JavaPlugin {
         }
     }
 
+
     public void onTick() {
         // Are any players online at the moment?
         if (Bukkit.getServer().getOnlinePlayers().size() > 0) {
 
             // Go over all online players
             for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+
+                p.setPlayerListName("\uE239 " + ChatColor.GRAY + p.getName());
 
                 // Get the currently held item by the player
                 ItemStack heldItem = p.getInventory().getItem(p.getInventory().getHeldItemSlot());
@@ -114,16 +113,32 @@ public final class VortexCustomItems extends JavaPlugin {
                         for (PotionEffect potEffect : p.getActivePotionEffects())
                             p.removePotionEffect(potEffect.getType());
 
-                    return;
+                    break;
                 }
 
+                // If any effects on player
+                if (p.getActivePotionEffects().size() > 0)
+
+                    // Check if an effect is on that isnt part of the held item
+                    for (PotionEffect potEffect : p.getActivePotionEffects())
+                        p.removePotionEffect(potEffect.getType());
+
                 // Apply corresponding potion effects (potion level is set by the customModelData number)
-                if (customItems.get(heldItem).get(1) != null)
-                    p.addPotionEffect(new PotionEffect((PotionEffectType) customItems.get(heldItem).get(1), 9999999, 0));
+                if (customItems.get(heldItem).getCustomItemPotionEffectType() != null) {
+
+                    // Check if any other effects are present
+                    for (PotionEffect potEffect : p.getActivePotionEffects())
+
+                        // If the player has a different effect than what the items gives
+                        if (potEffect.getType() != customItems.get(heldItem).getCustomItemPotionEffectType())
+                            p.removePotionEffect(potEffect.getType());
+
+                    p.addPotionEffect(new PotionEffect(customItems.get(heldItem).getCustomItemPotionEffectType(), 9999999, 0));
+                }
 
                 // Apply particle effect around player
-                if (customItems.get(heldItem).get(0) != null)
-                    p.getWorld().spawnParticle((Particle) customItems.get(heldItem).get(0), p.getLocation(), 5,  1,  0.2,  1,  0);
+                if (customItems.get(heldItem).getCustomItemParticle() != null)
+                    p.getWorld().spawnParticle(customItems.get(heldItem).getCustomItemParticle(), p.getLocation(), 5,  1,  0.2,  1,  0);
 
             }
         }

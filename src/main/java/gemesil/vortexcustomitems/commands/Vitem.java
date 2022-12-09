@@ -1,8 +1,6 @@
 package gemesil.vortexcustomitems.commands;
-
 import gemesil.vortexcustomitems.VortexCustomItems;
 import gemesil.vortexcustomitems.utils.VLog;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,8 +12,8 @@ import org.bukkit.inventory.ItemStack;
 public class Vitem implements CommandExecutor {
 
     // Get main plugin reference
-    private VortexCustomItems plugin;
-    private VLog vLog;
+    private final VortexCustomItems plugin;
+    private final VLog vLog;
 
     public Vitem(VortexCustomItems plugin, VLog vLog) {
         this.plugin = plugin;
@@ -57,11 +55,15 @@ public class Vitem implements CommandExecutor {
                             inputItemName.append(" ");
                     }
 
+                    boolean givenItem = false;
+
                     // Check if the name entered by the player matches any custom item names
                     for (ItemStack customItem : plugin.customItems.keySet()) {
 
                         // If the name matches
                         if (customItem.getItemMeta().getDisplayName().contains(inputItemName)) {
+
+                            givenItem = true;
 
                            // Check if the player's inventory is not full
                             if (p.getInventory().firstEmpty() != -1)
@@ -76,15 +78,11 @@ public class Vitem implements CommandExecutor {
 
                             // Send status message to the player and exit function
                             vLog.sendChat(p, "Gave " + customItem.getItemMeta().getDisplayName() + ChatColor.GRAY + " to " + p.getDisplayName() + ".");
-                            return true;
-
                         }
+                    }
 
-                        // When the input name didn't match any custom item names, show syntax and exit function
-                        else {
-                            vLog.sendChat(p, ChatColor.GRAY + "Item name not found, use /vitem list to see all names!");
-                            return true;
-                        }
+                    if (!givenItem) {
+                        vLog.sendChat(p, ChatColor.GRAY + "Item name not found, use /vitem list to see all names!");
                     }
 
                     return true;
@@ -96,7 +94,7 @@ public class Vitem implements CommandExecutor {
 
                     // Display all custom item names in chat
                     for (ItemStack customItem : plugin.customItems.keySet())
-                        vLog.sendChat(p, "• " + customItem.getItemMeta().getDisplayName() + ".");
+                        vLog.sendChat(p, "• " + plugin.customItems.get(customItem).getCustomItemName() + ".");
 
                     return true;
 

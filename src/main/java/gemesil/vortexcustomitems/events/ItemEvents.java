@@ -11,7 +11,7 @@ import org.bukkit.potion.PotionEffectType;
 
 public class ItemEvents implements Listener {
 
-    private VortexCustomItems plugin;
+    private final VortexCustomItems plugin;
 
     public ItemEvents(VortexCustomItems plugin) {
         this.plugin = plugin;
