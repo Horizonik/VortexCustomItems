@@ -1,6 +1,6 @@
 package gemesil.vortexcustomitems.commands;
 import gemesil.vortexcustomitems.VortexCustomItems;
-import gemesil.vortexcustomitems.utils.VLog;
+import gemesil.vortexlogger.VortexLogger;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,11 +13,11 @@ public class Vitem implements CommandExecutor {
 
     // Get main plugin reference
     private final VortexCustomItems plugin;
-    private final VLog vLog;
+    private final VortexLogger vortexLogger;
 
-    public Vitem(VortexCustomItems plugin, VLog vLog) {
+    public Vitem(VortexCustomItems plugin, VortexLogger vortexLogger) {
         this.plugin = plugin;
-        this.vLog = vLog;
+        this.vortexLogger = vortexLogger;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class Vitem implements CommandExecutor {
 
         // Check if the executor is not a player
         if (!(commandSender instanceof Player)) {
-            vLog.sendAlert("Must be a player to execute this command!");
+            vortexLogger.sendAlert("Must be a player to execute this command!");
             return true;
         }
 
@@ -41,7 +41,7 @@ public class Vitem implements CommandExecutor {
                 case "get":
 
                     if (args.length < 2) {
-                        vLog.sendChat(p, "Fool, you forgot to enter an item name! use /vitem get [name]");
+                        vortexLogger.sendChat(p, "Fool, you forgot to enter an item name! use /vitem get [name]", true);
                         return true;
                     }
 
@@ -77,12 +77,12 @@ public class Vitem implements CommandExecutor {
                                 p.getLocation().getWorld().dropItemNaturally(p.getLocation(), customItem);
 
                             // Send status message to the player and exit function
-                            vLog.sendChat(p, "Gave " + customItem.getItemMeta().getDisplayName() + ChatColor.GRAY + " to " + p.getDisplayName() + ".");
+                            vortexLogger.sendChat(p, "Gave " + customItem.getItemMeta().getDisplayName() + ChatColor.GRAY + " to " + p.getDisplayName() + ".", true);
                         }
                     }
 
                     if (!givenItem) {
-                        vLog.sendChat(p, ChatColor.GRAY + "Item name not found, use /vitem list to see all names!");
+                        vortexLogger.sendChat(p, ChatColor.GRAY + "Item name not found, use /vitem list to see all names!", true);
                     }
 
                     return true;
@@ -90,21 +90,22 @@ public class Vitem implements CommandExecutor {
                 // If the player is trying to list all item names
                 case "list":
 
-                    vLog.sendChat(p, "CUSTOM ITEMS:");
+                    vortexLogger.sendChat(p, "CUSTOM ITEMS:", true);
 
                     // Display all custom item names in chat
                     for (ItemStack customItem : plugin.customItems.keySet())
-                        vLog.sendChat(p, "• " + plugin.customItems.get(customItem).getCustomItemName() + ".");
+                        vortexLogger.sendChat(p, "• " + plugin.customItems.get(customItem).getItemName() + ".", true);
 
                     return true;
 
                 // If the player is trying to see help menu
                 case "help":
-                    vLog.sendChat(p,
+                    vortexLogger.sendChat(p,
                             "VITEM COMMANDS:\n" +
                                     ChatColor.BOLD + "/vitem help" + ChatColor.GRAY + " - display this help menu\n" +
                                     ChatColor.BOLD + "/vitem get [item name]" + ChatColor.GRAY + " - get a custom item\n" +
-                                    ChatColor.BOLD + "/vitem list" + ChatColor.GRAY + " - Show names of all custom items"
+                                    ChatColor.BOLD + "/vitem list" + ChatColor.GRAY + " - Show names of all custom items",
+                            true
                     );
 
                     return true;

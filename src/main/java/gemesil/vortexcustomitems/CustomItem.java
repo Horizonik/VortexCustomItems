@@ -1,6 +1,5 @@
 package gemesil.vortexcustomitems;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -15,18 +14,20 @@ import java.util.*;
 public class CustomItem {
 
     // -- OBJECT VARIABLES --
-    ItemStack customItem;
-    String customItemName;
-    Particle customItemParticle;
-    PotionEffectType customItemPotionEffectType;
+    private ItemStack customItem;
+    private String itemName;
+    private Particle itemParticle;
+    private PotionEffectType itemEffect;
+    private int itemEffectLevel;
 
     // -- CONSTRUCTOR --
-    public CustomItem(Material itemType, int customModelData, String itemName, String rarity, String itemDescription, LinkedHashMap<Enchantment, Integer> enchants, Particle particle, PotionEffectType potionEffectType) {
+    public CustomItem(Material itemType, int customModelData, String itemName, String rarity, String itemDescription, LinkedHashMap<Enchantment, Integer> enchants, Particle particle, PotionEffectType potionEffectType, int effectLevel) {
 
         // Start by assigning variables to the object
-        this.customItemName = itemName;
-        this.customItemParticle = particle;
-        this.customItemPotionEffectType = potionEffectType;
+        this.itemName = itemName;
+        this.itemParticle = particle;
+        this.itemEffect = potionEffectType;
+        this.itemEffectLevel = effectLevel;
 
         // Create a new item
         ItemStack item = new ItemStack(itemType);
@@ -55,9 +56,9 @@ public class CustomItem {
         if (itemMeta.isUnbreakable())
             itemLores.add(ChatColor.translateAlternateColorCodes('&',  formatRarity(rarity).get(1) + "&l") + "| " + ChatColor.WHITE + "Unbreakable");
 
-        // Add potion effect as enchant
-        String potName = capitalizeString(this.getCustomItemPotionEffectType().getName().replace("_", " "));
-        itemLores.add(ChatColor.translateAlternateColorCodes('&',  formatRarity(rarity).get(1) + "&l") + "| " + ChatColor.WHITE + potName);
+        // Add potion effect in lore
+        String potName = capitalizeString(this.getItemEffect().getName().replace("_", " "));
+        itemLores.add(ChatColor.translateAlternateColorCodes('&',  formatRarity(rarity).get(1) + "&l") + "| " + ChatColor.WHITE + potName + " " + toRomanNumber(effectLevel));
 
         // Add rarity in lore
         itemLores.add(formatRarity(rarity).get(0));
@@ -65,7 +66,8 @@ public class CustomItem {
         itemLores.add(""); // Empty line
 
         // Add an item description in lore TODO make line auto separate if too long
-        itemLores.add(ChatColor.DARK_GRAY + "\"" + itemDescription + "\"");
+        if (itemDescription != null)
+            itemLores.add(ChatColor.DARK_GRAY + "\"" + itemDescription + "\"");
 
         itemMeta.setLore(itemLores);
 
@@ -95,30 +97,39 @@ public class CustomItem {
     }
 
     // ItemName
-    public String getCustomItemName() {
-        return this.customItemName;
+    public String getItemName() {
+        return this.itemName;
     }
 
-    public void setCustomItemName(String customItemName) {
-        this.customItemName = customItemName;
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
     }
 
     // Particle
-    public Particle getCustomItemParticle() {
-        return this.customItemParticle;
+    public Particle getItemParticle() {
+        return this.itemParticle;
     }
 
-    public void setCustomItemParticle(Particle customItemParticle) {
-        this.customItemParticle = customItemParticle;
+    public void setItemParticle(Particle itemParticle) {
+        this.itemParticle = itemParticle;
     }
 
     // PotionEffectType
-    public PotionEffectType getCustomItemPotionEffectType() {
-        return this.customItemPotionEffectType;
+    public PotionEffectType getItemEffect() {
+        return this.itemEffect;
     }
 
-    public void setCustomItemPotionEffectType(PotionEffectType customItemPotionEffectType) {
-        this.customItemPotionEffectType = customItemPotionEffectType;
+    public void setItemEffect(PotionEffectType itemEffect) {
+        this.itemEffect = itemEffect;
+    }
+
+    // PotionEffectLevel
+    public int getItemEffectLevel() {
+        return this.itemEffectLevel;
+    }
+
+    public void setItemEffect(int itemEffectLevel) {
+        this.itemEffectLevel = itemEffectLevel;
     }
 
     // -- UTILITIES VARIABLES --
@@ -160,12 +171,12 @@ public class CustomItem {
         switch (rarity) {
 
             case "Extremely Rare":
-                color = "&c";
+                color = "&d";
                 rarityName = "Extremely Rare";
                 break;
 
             case "Very Rare":
-                color = "&d";
+                color = "&5";
                 rarityName = "Very Rare";
                 break;
 

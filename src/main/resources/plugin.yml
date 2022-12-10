@@ -5,6 +5,7 @@ api-version: 1.19
 prefix: VortexCustomItems
 authors: [ Gemesil ]
 description: Adds custom items to the game using an external resourcepack
+depend: [VortexLogger]
 commands:
   vitem:
     description: Manage custom items in MCVortexCustomItems
