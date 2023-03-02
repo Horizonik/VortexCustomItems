@@ -8,10 +8,10 @@ The constructor knows how to format the id names of effects, particles and encha
 The way to see assign custom textures for every custom item is by giving it a customModelData. Each vanilla item type can get a customModelData, once added we can then create a texturepack and define a texture for vanilla item X that has our custoModelData Y and so on.
 
 The item is then added to the game and can be accessed by running the command
-  /vitem get {item_name}
+    /vitem get {item_name}
   
 Alternatively to see a list of all existing custom items you can run
-  /vitem list
+    /vitem list
   
 ## Dependencies
 - VortexLogger - Handles plugin-to-player messages like hotbar pop ups or chat notifications. [You can download VortexLogger here](https://github.com/Gemesil/VortexLogger/releases/tag/v1.0.0).
