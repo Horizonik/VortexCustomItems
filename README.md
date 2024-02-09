@@ -1,5 +1,5 @@
 # What is it exactly?
-**VortexCustomItems** is an unfinished Minecraft 1.19.2 plugin coded by Ofek Buchnik, it adds new items to the game each with their own custom effects, particles, enchantments and textures. This plugin is meant to be used with a corresponding texture-pack.
+**VortexCustomItems** is an unfinished Minecraft 1.19.2 plugin, it adds new items to the game each with their own custom effects, particles, enchantments and textures. This plugin is meant to be used with a corresponding texture-pack.
 
 ### The way it works:
 You can create a new CustomItem object, the constructor takes arguments that define what the item will do, what particles and effects it will emit and more. It allows full customization of every specific item.
